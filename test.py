@@ -1,9 +1,13 @@
 from openpyxl import load_workbook
 from docxtpl import DocxTemplate
-from docx2pdf import convert
+# from docx2pdf import convert
 import os
+import sys
+import comtypes.client
 from tkinter import filedialog
 from multiprocessing.dummy import Pool
+
+wdFormatPDF = 17
 
 roster_and_grades = filedialog.askopenfile()
 save_directory = filedialog.askdirectory()
@@ -52,12 +56,24 @@ def create_docs():
             # convert(str(certificate_number) + " Certificate of Training " + course_code + ".docx")
             # os.remove(str(certificate_number) + " Certificate of Training " + course_code + ".docx")
             certificate_number += 1
+    wb.close()
+    conversion()
 
+def conversion():
     pool = Pool()
     docxs = get_docx()
-    pool.map(convert, docxs)
+    # pool.map(convert, docxs) # possibly an error with the convert library, try using the built in COM library to mitigate
+    for document in docxs:
+        os.remove(document)
     pool.close()
     pool.join()
+
+def convert(document_name):
+    word = comtypes.client.CreateObject(document_name)
+    doc = word.Documents.Open(document_name)
+    doc.SaveAs(document_name, FileFormat=wdFormatPDF)
+    doc.Close()
+    word.Quit()
 
 def get_docx():
     return (os.path.join(save_directory, file)
