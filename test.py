@@ -3,34 +3,15 @@ from openpyxl import load_workbook
 from docxtpl import DocxTemplate
 from docx2pdf import convert
 import os
-from tkinter import filedialog
-# from multiprocessing.dummy import Pool
 
-# roster_and_grades = filedialog.askopenfile()
-# save_directory = filedialog.askdirectory()
-# this is so we don't have to enter it every time
- 
+# Instantiates variables for testing
 def main():
-    roster_and_grades = select_wb()
-    save_directory = select_save() 
-    doc = select_doc('Certificate of Training - SBA Edit.docx')
+    roster_and_grades = 'BMRA Roster and Grades - 11023.0001.xlsx'
+    save_directory = 'Certs'
+    doc = 'Certificate of Training - SBA Edit.docx'
     create_docs(roster_and_grades, save_directory, doc)
 
-# selects the workbook
-def select_wb():
-    return (filedialog.askopenfile()).name
-    # return 'BMRA Roster and Grades - 11023.0001.xlsx'
-
-# selects save directory
-def select_save():
-    return filedialog.askdirectory()
-    # return 'Certs'
-
-# selects the Cert Template
-def select_doc(template_file_path):
-    return(template_file_path)
-
-# creates the docs w/ correct names and converts them to PDF
+# Creates the docs w/correct names and converts them to PDF
 def create_docs(roster_and_grades, save_directory, doc):
     doc = DocxTemplate(doc)
     wb = load_workbook(roster_and_grades)
@@ -79,29 +60,19 @@ def create_docs(roster_and_grades, save_directory, doc):
                     'START_DATE': start_date,
                     'END_DATE': end_date
                 }
-            # creates the docs
+
+            # Creates the docs in desired directory
             doc.render(template_fill)
             document_name = save_directory + "/" + str(certificate_number) + " - Certificate of Training " + course_code + ".docx"
             doc.save(document_name)
             certificate_number += 1
-    # conversion()
+
+    # conversion of directory to pdf       
     convert(save_directory)
     docxs = get_docx(save_directory)
     for document in docxs:
         os.remove(document)
     wb.close()
-
-# my sad attempt at multithreaded processing
-# Not used
-# def conversion():
-#     pool = Pool()
-#     docxs = get_docx()
-#     pool.map(convert, docxs) # IDK WHAT'S WRONG!!
-#     for document in docxs:
-#         os.remove(document)
-#     pool.close()
-#     pool.join()
-#     print('Done!')
 
 # creates an interable of the docx files in folder
 def get_docx(save_directory):
