@@ -63,7 +63,7 @@ def create_docs(roster_and_grades, save_directory, doc):
 
             # Creates the docs in desired directory
             doc.render(template_fill)
-            document_name = save_directory + "/" + str(certificate_number) + " - Certificate of Training " + course_code + ".docx"
+            document_name = save_directory + "/" + str(certificate_number) + " - " + first_name + " " + last_name + " - Certificate of Training " + course_code + ".docx"
             doc.save(document_name)
             certificate_number += 1
 
