@@ -123,17 +123,24 @@ class gui(wx.Dialog):
     def run(self, event):
         # Check if override
         override = self.text_ctrl.GetValue()
-        if (override != 'Enter Name Override if applicable' and len(override) > 0 and gui.param1 and gui.param2):
+        if(gui.param1 == True and gui.param2 == True):
+            if (override != 'Enter Name Override if applicable' and len(override) > 0):
                 test.create_docs(gui.roster_and_grades, gui.save_directory, gui.doc_template, override)
-        # Check if both parameters have been set
-        elif (gui.param1 and gui.param2 and override == 'Enter Name Override if applicable'):
-            test.create_docs(gui.roster_and_grades, gui.save_directory, gui.doc_template)
-            # Check for errors
-            if(gui.error_1_bool == True):
-                gui.error_1_text.Hide()
-                gui.error_1_bool = False
-            # Display a success message    
-            wx.StaticText(self, label = 'Success!', pos=(260,330))
+                # Check for errors
+                if(gui.error_1_bool == True):
+                    gui.error_1_text.Hide()
+                    gui.error_1_bool = False
+                # Display a success message    
+                wx.StaticText(self, label = 'Success!', pos=(260,330))
+            # Check if both parameters have been set
+            else:
+                test.create_docs(gui.roster_and_grades, gui.save_directory, gui.doc_template)
+                # Check for errors
+                if(gui.error_1_bool == True):
+                    gui.error_1_text.Hide()
+                    gui.error_1_bool = False
+                # Display a success message    
+                wx.StaticText(self, label = 'Success!', pos=(260,330))
         else:
             # Display an error message
             gui.error_1_text = wx.StaticText(self, label= 'Fill out other fields then use this button!', pos=(260,330))

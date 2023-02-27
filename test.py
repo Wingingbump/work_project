@@ -20,7 +20,7 @@ def create_docs(roster_and_grades, save_directory, doc, code_override=None):
     ws = wb.active
 
     certificate_number = 1
-    for row in ws['2:3']:
+    for row in ws['2:35']:
 
         # Data scraped from the excel
         course_code = str(row[0].value)
