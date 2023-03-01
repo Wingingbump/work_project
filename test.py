@@ -3,6 +3,7 @@ from openpyxl import load_workbook
 from docxtpl import DocxTemplate
 from docx2pdf import convert
 from pypdf import PdfMerger
+import zipfile
 import os
 
 
@@ -26,6 +27,7 @@ def create_docs(roster_and_grades, save_directory, doc, code_override=None):
     combined_pdf_name = ""
     certificate_number = 1
 
+    # Loop through rows in ws
     for row in ws['2:35']:
 
         # Data scraped from the excel
@@ -86,21 +88,28 @@ def create_docs(roster_and_grades, save_directory, doc, code_override=None):
         os.remove(document)
     wb.close()
 
-    # Make combined pdf 
-    pdfs = get_pdf(save_directory)
-    merger = PdfMerger()
-    for pdf in pdfs:
-        merger.append(pdf)
-
-    # Naming for the combined file
+     # Naming for the combined file
     if (code_override != None):
         combined_pdf_name = "Certificates of Training - " + code_override 
     else:
         combined_pdf_name = "Certificates of Training - " + course_code_save
+
+    pdfs = get_pdf(save_directory)
+    output_filename = save_directory + "/Compressed " + combined_pdf_name + ".zip"
+    
+    zf = zipfile.ZipFile(output_filename, "w")
+
+    # Make combined pdf 
+    merger = PdfMerger()
+    for pdf in pdfs:
+        zf.write(pdf)
+        merger.append(pdf)
     
     # Make file
     merger.write(save_directory + "/" + combined_pdf_name + ".pdf")
     merger.close()
+    zf.close()
+    
 
 # creates an interable of the docx files in folder
 def get_docx(save_directory):
