@@ -2,6 +2,7 @@ from datetime import datetime
 from openpyxl import load_workbook
 from docxtpl import DocxTemplate
 from docx2pdf import convert
+from pypdf import PdfMerger
 import os
 
 
@@ -9,7 +10,7 @@ import os
 def main():
     roster_and_grades = 'BMRA Roster and Grades - 11023.0001.xlsx'
     save_directory = 'Certs'
-    doc = 'Certificate of Training - SBA Edit.docx'
+    doc = 'Certificate of Training - Edit.docx'
     create_docs(roster_and_grades, save_directory, doc,)
 
 # Creates the docs w/correct names and converts them to PDF
@@ -19,6 +20,8 @@ def create_docs(roster_and_grades, save_directory, doc, code_override=None):
     wb = load_workbook(roster_and_grades)
     ws = wb.active
 
+    course_code_save = str(ws["A2"].value)
+    combined_pdf_name = ""
     certificate_number = 1
     for row in ws['2:35']:
 
@@ -36,8 +39,8 @@ def create_docs(roster_and_grades, save_directory, doc, code_override=None):
         clps = row[12].value
 
         if (isinstance(start_date, datetime)):
-            start_date = start_date.strftime('%m/%d/%Y')
-            end_date = end_date.strftime('%m/%d/%Y')
+            start_date = start_date.strftime('%#m/%#d/%Y')
+            end_date = end_date.strftime('%#m/%#d/%Y')
 
         # Creates a dictionary from the excel and allows for rendering of template
         template_fill = {}
@@ -66,9 +69,9 @@ def create_docs(roster_and_grades, save_directory, doc, code_override=None):
             # Creates the docs in desired directory
             doc.render(template_fill)
             if (code_override != None):
-                document_name = save_directory + "/" + str(certificate_number) + " - " + first_name + " " + last_name + " - Certificate of Training - " + code_override + ".docx"
+                document_name = save_directory + "/" + str(certificate_number).zfill(2) + " - " + first_name + " " + last_name + " - Certificate of Training - " + code_override + ".docx"
             else:
-                document_name = save_directory + "/" + str(certificate_number) + " - " + first_name + " " + last_name + " - Certificate of Training - " + course_code + ".docx"
+                document_name = save_directory + "/" + str(certificate_number).zfill(2) + " - " + first_name + " " + last_name + " - Certificate of Training - " + course_code + ".docx"
             doc.save(document_name)
             certificate_number += 1
 
@@ -78,12 +81,28 @@ def create_docs(roster_and_grades, save_directory, doc, code_override=None):
     for document in docxs:
         os.remove(document)
     wb.close()
+    # Make combined pdf 
+    pdfs = get_pdf(save_directory)
+    merger = PdfMerger()
+    for pdf in pdfs:
+        merger.append(pdf)
+    if (code_override != None):
+        combined_pdf_name = "Certificates of Training - " + code_override 
+    else:
+        combined_pdf_name = "Certificates of Training - " + course_code_save
+    merger.write(save_directory + "/" + combined_pdf_name + ".pdf")
+    merger.close()
 
 # creates an interable of the docx files in folder
 def get_docx(save_directory):
     return (os.path.join(save_directory, file)
     for file in os.listdir(save_directory)
     if 'docx' in file)
+
+def get_pdf(save_directory):
+    return (os.path.join(save_directory, file)
+    for file in os.listdir(save_directory)
+    if 'pdf' in file)
 
 if __name__ == "__main__":
     main()
