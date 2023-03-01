@@ -94,12 +94,14 @@ def create_docs(roster_and_grades, save_directory, doc, code_override=None):
     else:
         combined_pdf_name = "Certificates of Training - " + course_code_save
 
+    # Get pdf iterable
     pdfs = get_pdf(save_directory)
+    # Create the output filename for compressed file
     output_filename = save_directory + "/Compressed " + combined_pdf_name + ".zip"
-    
+    # Instantiate zipfile
     zf = zipfile.ZipFile(output_filename, "w")
 
-    # Make combined pdf 
+    # Make combined pdf and compressed file
     merger = PdfMerger()
     for pdf in pdfs:
         zf.write(pdf)
