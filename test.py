@@ -10,7 +10,7 @@ import os
 # Instantiates variables for testing
 def main():
     roster_and_grades = 'BMRA Roster and Grades - 11023.0001.xlsx'
-    save_directory = 'Certs'
+    save_directory = 'Certs/test/test2'
     doc = 'Certificate of Training - Edit.docx'
     create_docs(roster_and_grades, save_directory, doc,)
 
@@ -104,7 +104,8 @@ def create_docs(roster_and_grades, save_directory, doc, code_override=None):
     # Make combined pdf and compressed file
     merger = PdfMerger()
     for pdf in pdfs:
-        zf.write(pdf)
+        arcname = os.path.basename(pdf)
+        zf.write(pdf, arcname)
         merger.append(pdf)
     
     # Make file
