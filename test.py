@@ -82,37 +82,40 @@ def create_docs(roster_and_grades, save_directory, doc, code_override=None):
             certificate_number += 1
 
     # conversion of directory to pdf       
-    convert(save_directory)
-    docxs = get_docx(save_directory)
-    for document in docxs:
-        os.remove(document)
+    convert_directory(save_directory)
     wb.close()
-
      # Naming for the combined file
     if (code_override != None):
         combined_pdf_name = "Certificates of Training - " + code_override 
     else:
         combined_pdf_name = "Certificates of Training - " + course_code_save
+    make_zip_merge(save_directory, combined_pdf_name)
 
-    # Get pdf iterable
-    pdfs = get_pdf(save_directory)
+    
+# Convert of directory to pdf
+def convert_directory(directory) -> None:
+    convert(directory)
+    docxs = get_docx(directory)
+    for document in docxs:
+        os.remove(document)
+
+# Makes a compressed file and a merged file
+def make_zip_merge(directory, filename) -> None:
     # Create the output filename for compressed file
-    output_filename = save_directory + "/Compressed " + combined_pdf_name + ".zip"
+    output_filename = directory + "/Compressed " + filename + ".zip"
     # Instantiate zipfile
     zf = zipfile.ZipFile(output_filename, "w")
-
-    # Make combined pdf and compressed file
+    # Get pdf iterable
+    pdfs = get_pdf(directory)
     merger = PdfMerger()
     for pdf in pdfs:
         arcname = os.path.basename(pdf)
         zf.write(pdf, arcname)
         merger.append(pdf)
-    
-    # Make file
-    merger.write(save_directory + "/" + combined_pdf_name + ".pdf")
+        # Make file
+    merger.write(directory + "/" + filename + ".pdf")
     merger.close()
     zf.close()
-    
 
 # creates an interable of the docx files in folder
 def get_docx(save_directory):
